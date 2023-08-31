@@ -4,7 +4,7 @@ use chrono::{DateTime, FixedOffset};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, Clone)]
-pub struct TrainResponse(pub HashMap<String, Train>);
+pub struct TrainResponse(pub HashMap<String, Vec<Train>>);
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Train {
@@ -86,7 +86,7 @@ pub struct TrainStation {
     #[serde(rename = "schArr")]
     pub schedule_arrival: DateTime<FixedOffset>,
 
-    #[serde(rename = "schArr")]
+    #[serde(rename = "schDep")]
     pub schedule_departure: DateTime<FixedOffset>,
 
     #[serde(rename = "arr", default)]
@@ -104,7 +104,7 @@ pub struct TrainStation {
     pub status: TrainStatus,
 }
 
-#[derive(Debug, Deserialize, Copy, Clone)]
+#[derive(Debug, Deserialize, Copy, Clone, PartialEq, Eq)]
 pub enum TrainStatus {
     Enroute,
     Station,

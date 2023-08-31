@@ -1,12 +1,12 @@
-use amtrak_api::Client;
-use chrono::{DateTime, FixedOffset, NaiveDate};
+use amtrak_api::{responses::TrainStatus, Client};
+use chrono::{FixedOffset, NaiveDate};
 use mockito::Server;
 
 #[tokio::test]
 async fn test_single_train() -> Result<(), amtrak_api::errors::Error> {
     let mut server = Server::new();
     let mock_server = server
-        .mock("GET", "/stations")
+        .mock("GET", "/trains")
         .with_body(
             r#"
 {
@@ -269,7 +269,12 @@ async fn test_single_train() -> Result<(), amtrak_api::errors::Error> {
 
     assert_eq!(response.0.len(), 1);
 
-    let train = response.0.get("657").unwrap();
+    let trains = response.0.get("657").unwrap();
+
+    assert_eq!(trains.len(), 1);
+
+    let train = trains.get(0).unwrap();
+
     assert_eq!(train.route_name, "Keystone");
     assert_eq!(train.train_num, 657);
     assert_eq!(train.lat, 40.14815944794739);
@@ -277,20 +282,51 @@ async fn test_single_train() -> Result<(), amtrak_api::errors::Error> {
     assert_eq!(train.train_timely, "NaN Minutes Early");
 
     assert_eq!(train.stations.len(), 17);
+
+    // Check the first station
     assert_eq!(train.stations[0].name, "New York Penn");
     assert_eq!(train.stations[0].code, "NYP");
     assert_eq!(train.stations[0].tz, "America/New_York");
-    assert_eq!(train.stations[0].bus, false);
-    assert_eq!(
-        train.stations[0].schedule_arrival,
-        DateTime::<FixedOffset>::from_naive_utc_and_offset(
-            NaiveDate::from_ymd_opt(2023, 8, 29)
-                .unwrap()
-                .and_hms_opt(20, 30, 0)
-                .unwrap(),
-            FixedOffset::east_opt(-4 * 3600).unwrap()
-        )
-    );
+    assert!(!train.stations[0].bus);
+    assert_eq!(train.stations[0].schedule_arrival, {
+        let tz = FixedOffset::east_opt(-4 * 3600).unwrap();
+        NaiveDate::from_ymd_opt(2023, 8, 29)
+            .unwrap()
+            .and_hms_opt(20, 30, 0)
+            .unwrap()
+            .and_local_timezone(tz)
+            .unwrap()
+    });
+    assert_eq!(train.stations[0].schedule_departure, {
+        let tz = FixedOffset::east_opt(-4 * 3600).unwrap();
+        NaiveDate::from_ymd_opt(2023, 8, 29)
+            .unwrap()
+            .and_hms_opt(20, 30, 0)
+            .unwrap()
+            .and_local_timezone(tz)
+            .unwrap()
+    });
+    assert_eq!(train.stations[0].arrival.unwrap(), {
+        let tz = FixedOffset::east_opt(-4 * 3600).unwrap();
+        NaiveDate::from_ymd_opt(2023, 8, 29)
+            .unwrap()
+            .and_hms_opt(20, 30, 0)
+            .unwrap()
+            .and_local_timezone(tz)
+            .unwrap()
+    });
+    assert_eq!(train.stations[0].departure.unwrap(), {
+        let tz = FixedOffset::east_opt(-4 * 3600).unwrap();
+        NaiveDate::from_ymd_opt(2023, 8, 29)
+            .unwrap()
+            .and_hms_opt(20, 30, 0)
+            .unwrap()
+            .and_local_timezone(tz)
+            .unwrap()
+    });
+    assert_eq!(train.stations[0].arrival_comment, "0 Minutes Early");
+    assert_eq!(train.stations[0].departure_comment, "0 Minutes Early");
+    assert_eq!(train.stations[0].status, TrainStatus::Departed);
 
     mock_server.assert_async().await;
 
