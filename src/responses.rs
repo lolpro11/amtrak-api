@@ -116,7 +116,7 @@ pub enum TrainStatus {
 pub enum TrainState {
     Predeparture,
     Active,
-    Complete,
+    Completed,
 }
 
 #[derive(Debug, Deserialize, Clone)]
