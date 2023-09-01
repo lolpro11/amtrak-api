@@ -112,7 +112,7 @@ pub enum TrainStatus {
     Unknown,
 }
 
-#[derive(Debug, Deserialize, Copy, Clone)]
+#[derive(Debug, Deserialize, Copy, Clone, PartialEq, Eq)]
 pub enum TrainState {
     Predeparture,
     Active,
