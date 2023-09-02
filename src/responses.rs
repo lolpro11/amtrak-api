@@ -32,7 +32,7 @@ pub struct Train {
     pub event_code: String,
 
     #[serde(rename = "eventTZ")]
-    pub event_tz: String,
+    pub event_tz: Option<String>,
 
     #[serde(rename = "eventName")]
     pub event_name: String,
