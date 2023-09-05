@@ -1,7 +1,7 @@
 //! # Example: Filter Trains
 //!
-//! This example shows how to filter trains based on the route name and then determine what
-//! station the train is currently in route to.
+//! This example shows how to filter trains based on the route name and then
+//! determine what station the train is currently in route to.
 use amtrak_api::{responses::TrainStatus, Client};
 use chrono::{Local, Utc};
 

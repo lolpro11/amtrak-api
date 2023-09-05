@@ -22,5 +22,13 @@ mockito = "1.1.0"
 tokio = { version = "1.32.0", features = ["full"] }
 
 [[example]]
+name = "filter_stations"
+crate-type = ["bin"]
+
+[[example]]
 name = "filter_trains"
+crate-type = ["bin"]
+
+[[example]]
+name = "single_train"
 crate-type = ["bin"]
