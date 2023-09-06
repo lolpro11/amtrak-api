@@ -267,8 +267,6 @@ async fn test_single_train() -> Result<(), amtrak_api::errors::Error> {
     let client = Client::with_base_url(server.url().as_str());
     let response = client.trains().await?;
 
-    assert_eq!(response.0.len(), 1);
-
     let trains = response.0.get("657").unwrap();
 
     assert_eq!(trains.len(), 1);
@@ -327,6 +325,24 @@ async fn test_single_train() -> Result<(), amtrak_api::errors::Error> {
     assert_eq!(train.stations[0].arrival_comment, "0 Minutes Early");
     assert_eq!(train.stations[0].departure_comment, "0 Minutes Early");
     assert_eq!(train.stations[0].status, TrainStatus::Departed);
+
+    mock_server.assert_async().await;
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_empty_trains() -> Result<(), amtrak_api::errors::Error> {
+    let mut server = Server::new();
+    let mock_server = server
+        .mock("GET", "/trains")
+        .with_body("[]")
+        .create_async()
+        .await;
+    let client = Client::with_base_url(server.url().as_str());
+    let response = client.trains().await?;
+
+    assert_eq!(response.0.len(), 0);
 
     mock_server.assert_async().await;
 

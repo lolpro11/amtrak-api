@@ -1,10 +1,10 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt};
 
 use chrono::{DateTime, FixedOffset};
-use serde::Deserialize;
+use serde::{de, Deserialize};
 
 /// The response from the `/trains` or `/trains/{:train_id}` endpoint.
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Clone)]
 pub struct TrainResponse(
     /// Each key in the hashmap is the string representation of the
     /// [`train_num`] field. The value is a list of trains that have the
@@ -17,6 +17,50 @@ pub struct TrainResponse(
     /// [`train_num`]: Train::train_num
     pub HashMap<String, Vec<Train>>,
 );
+
+/// Custom visitor used to deserialize responses from the `/trains` or
+/// `/trains/{:train_id}` endpoint.
+///
+/// On empty data the Amtrak API will serialize an empty vector as `[]`. On
+/// normal content responses, the API will instead serialize a dictionary using
+/// `{"key1", "<content>"}`. This does not place nicely with serde which
+/// (rightfully) expects the type to be the same for every endpoint response. To
+/// handle this discrepancy, we implement our own visitor which will handle both
+/// response.
+struct TrainResponseVisitor;
+
+impl<'de> de::Visitor<'de> for TrainResponseVisitor {
+    type Value = TrainResponse;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        formatter.write_str("a HashMap or an empty array")
+    }
+
+    fn visit_map<A>(self, map: A) -> Result<Self::Value, A::Error>
+    where
+        A: de::MapAccess<'de>,
+    {
+        Ok(TrainResponse(Deserialize::deserialize(
+            de::value::MapAccessDeserializer::new(map),
+        )?))
+    }
+
+    fn visit_seq<A>(self, _seq: A) -> Result<Self::Value, A::Error>
+    where
+        A: de::SeqAccess<'de>,
+    {
+        Ok(TrainResponse(HashMap::new()))
+    }
+}
+
+impl<'de> Deserialize<'de> for TrainResponse {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: de::Deserializer<'de>,
+    {
+        deserializer.deserialize_any(TrainResponseVisitor)
+    }
+}
 
 /// Represents an Amtrak train
 #[derive(Debug, Deserialize, Clone)]
@@ -351,7 +395,7 @@ pub enum TrainState {
 }
 
 /// The response from the `/stations` or `/stations/{:station_code}` endpoint.
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Clone)]
 pub struct StationResponse(
     /// Each key in the hashmap is the unique station code which will match the
     /// [`code`] field. The value is the [`Station`] structure that is
@@ -361,6 +405,50 @@ pub struct StationResponse(
     /// [`Station`]: Station
     pub HashMap<String, Station>,
 );
+
+/// Custom visitor used to deserialize responses from the `/stations` or
+/// `/stations/{:station_code}` endpoint.
+///
+/// On empty data the Amtrak API will serialize an empty vector as `[]`. On
+/// normal content responses, the API will instead serialize a dictionary using
+/// `{"key1", "<content>"}`. This does not place nicely with serde which
+/// (rightfully) expects the type to be the same for every endpoint response. To
+/// handle this discrepancy, we implement our own visitor which will handle both
+/// response.
+struct StationResponseVisitor;
+
+impl<'de> de::Visitor<'de> for StationResponseVisitor {
+    type Value = StationResponse;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        formatter.write_str("a HashMap or an empty array")
+    }
+
+    fn visit_map<A>(self, map: A) -> Result<Self::Value, A::Error>
+    where
+        A: de::MapAccess<'de>,
+    {
+        Ok(StationResponse(Deserialize::deserialize(
+            de::value::MapAccessDeserializer::new(map),
+        )?))
+    }
+
+    fn visit_seq<A>(self, _seq: A) -> Result<Self::Value, A::Error>
+    where
+        A: de::SeqAccess<'de>,
+    {
+        Ok(StationResponse(HashMap::new()))
+    }
+}
+
+impl<'de> Deserialize<'de> for StationResponse {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: de::Deserializer<'de>,
+    {
+        deserializer.deserialize_any(StationResponseVisitor)
+    }
+}
 
 /// Represents a unique station that Amtrak services
 #[derive(Debug, Deserialize, Clone)]

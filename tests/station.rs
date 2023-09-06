@@ -48,3 +48,21 @@ async fn test_single_station() -> Result<(), amtrak_api::errors::Error> {
 
     Ok(())
 }
+
+#[tokio::test]
+async fn test_empty_station() -> Result<(), amtrak_api::errors::Error> {
+    let mut server = Server::new();
+    let mock_server = server
+        .mock("GET", "/stations/ABC")
+        .with_body("[]")
+        .create_async()
+        .await;
+    let client = Client::with_base_url(server.url().as_str());
+    let response = client.station(&"ABC").await?;
+
+    assert_eq!(response.0.len(), 0);
+
+    mock_server.assert_async().await;
+
+    Ok(())
+}
