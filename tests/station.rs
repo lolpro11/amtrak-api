@@ -58,7 +58,7 @@ async fn test_empty_station() -> Result<(), amtrak_api::errors::Error> {
         .create_async()
         .await;
     let client = Client::with_base_url(server.url().as_str());
-    let response = client.station(&"ABC").await?;
+    let response = client.station("ABC").await?;
 
     assert_eq!(response.0.len(), 0);
 

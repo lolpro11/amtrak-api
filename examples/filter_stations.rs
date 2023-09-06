@@ -10,7 +10,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?
         .0
         .values()
-        .into_iter()
         .filter(|station| station.state == "PA")
         .for_each(|station| {
             println!("Station \"{}\" is in PA", station.name);

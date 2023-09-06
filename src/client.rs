@@ -1,6 +1,6 @@
 use crate::{errors, responses};
 
-const BASE_API_URL: &'static str = "https://api-v3.amtraker.com/v3";
+const BASE_API_URL: &str = "https://api-v3.amtraker.com/v3";
 
 pub type Result<T> = std::result::Result<T, errors::Error>;
 
@@ -133,7 +133,7 @@ impl Client {
     /// ```rust
     /// use amtrak_api::{responses::TrainStatus, Client};
     ///
-    /// const TRAIN_ID: &'static str = "612-5";
+    /// const TRAIN_ID: &str = "612-5";
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -218,7 +218,6 @@ impl Client {
     ///         .await?
     ///         .0
     ///         .values()
-    ///         .into_iter()
     ///         .filter(|station| station.state == "PA")
     ///         .for_each(|station| {
     ///             println!("Station \"{}\" is in PA", station.name);

@@ -4,7 +4,7 @@
 //! id and then determine if it has stopped at 30th street station yet.
 use amtrak_api::{responses::TrainStatus, Client};
 
-const TRAIN_ID: &'static str = "612-5";
+const TRAIN_ID: &str = "612-5";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
