@@ -16,12 +16,46 @@ impl Default for Client {
 }
 
 impl Client {
+    /// Creates a new instance with the default Amtrak API endpoint
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use amtrak_api::Client;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let client = Client::new();
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn new() -> Self {
         Self {
             base_url: BASE_API_URL.to_string(),
         }
     }
 
+    /// Creates a new instance with the provided Amtrak endpoint
+    ///
+    /// This function is useful for testing since Mockito will create a local
+    /// endpoint
+    ///
+    /// # Arguments
+    ///
+    /// * `base_url` - The base url of the endpoint that this client will query
+    ///   when making API calls.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use amtrak_api::Client;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let client = Client::with_base_url("https://api-v3.amtraker.com/v3");
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn with_base_url(base_url: &str) -> Self {
         Self {
             base_url: base_url.to_string(),
@@ -239,8 +273,45 @@ impl Client {
         Ok(response)
     }
 
-    pub async fn station(&self, station_id: &str) -> Result<responses::StationResponse> {
-        let url = format!("{}/stations/{}", self.base_url, station_id);
+    /// Returns the specified station in the Amtrak network
+    ///
+    /// This function calls into the `/stations/{:station_code}` endpoint.
+    ///
+    /// This function will query the station with the provided `station_code`.
+    ///
+    /// # Arguments
+    ///
+    /// * `station_code` - The station [`code`] the caller wants to query.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use amtrak_api::Client;
+    ///
+    /// const STATION_CODE: &str = "PHL";
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     Client::new()
+    ///         .station(STATION_CODE)
+    ///         .await?
+    ///         .0
+    ///         .values()
+    ///         .for_each(|station| {
+    ///             println!(
+    ///                 "Current train scheduled for station \"{}\": {}",
+    ///                 station.name,
+    ///                 station.trains.join(", ")
+    ///             );
+    ///         });
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    ///
+    /// [`code`]: responses::TrainStation::code
+    pub async fn station(&self, station_code: &str) -> Result<responses::StationResponse> {
+        let url = format!("{}/stations/{}", self.base_url, station_code);
 
         let response = reqwest::Client::new()
             .get(url)

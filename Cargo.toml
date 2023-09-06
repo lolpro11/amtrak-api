@@ -30,5 +30,9 @@ name = "filter_trains"
 crate-type = ["bin"]
 
 [[example]]
+name = "single_station"
+crate-type = ["bin"]
+
+[[example]]
 name = "single_train"
 crate-type = ["bin"]
