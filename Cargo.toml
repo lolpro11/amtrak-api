@@ -1,6 +1,6 @@
 [package]
 name = "amtrak-api"
-version = "0.0.1"
+version = "0.1.0"
 edition = "2021"
 description = "Amtrak Async Rust API Client"
 keywords = ["amtrak", "api", "public-transit", "train"]
@@ -14,7 +14,7 @@ license = "MIT"
 [dependencies]
 reqwest = { version = "0.11.20", features = ["json"] }
 serde_json = "1.0.105"
-serde = { version = "1.0.186", features = ["derive"] }
+serde = { version = "1.0.188", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
 
 [dev-dependencies]
