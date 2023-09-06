@@ -1,9 +1,18 @@
+//! Amtrak API Client
+//!
+//! The client allows the user to call the various different endpoints provided
+//! by the API.
+
 use crate::{errors, responses};
 
 const BASE_API_URL: &str = "https://api-v3.amtraker.com/v3";
 
 pub type Result<T> = std::result::Result<T, errors::Error>;
 
+/// A client instance
+///
+/// Note: This does not represent an active connection. Connections are
+/// established when making an endpoint call and are not persistent after.
 #[derive(Debug, Clone)]
 pub struct Client {
     base_url: String,
