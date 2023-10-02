@@ -3,6 +3,9 @@
 //! Amtrak Rust API allows the caller to query the Amtrak API for information
 //! about trains and stations in its network.
 //!
+//! Please check [`Client`] for the various endpoints this API allows you to
+//! call into.
+//!
 //! Note: This library is not affiliated with Amtrak in any way and is an
 //! unofficial implementation of the public facing API. Amtrak is a registered
 //! trademark of the National Railroad Passenger Corporation.

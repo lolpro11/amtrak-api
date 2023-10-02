@@ -5,6 +5,7 @@
 
 use crate::{errors, responses};
 
+/// Default endpoint for Amtrak API
 const BASE_API_URL: &str = "https://api-v3.amtraker.com/v3";
 
 pub type Result<T> = std::result::Result<T, errors::Error>;
@@ -76,7 +77,8 @@ impl Client {
     /// This function calls into the `/trains` endpoint.
     ///
     /// This function will list all current trains being tracked by the Amtrak
-    /// API.
+    /// API. Check the [`TrainResponse`] struct for the schema and data that
+    /// this endpoint returns.
     ///
     /// # Example
     ///
@@ -86,10 +88,7 @@ impl Client {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    ///     let client = Client::new();
-    ///
-    ///     // Filter out any trains which route is not a part of the Keystone Corridor
-    ///     let keystone_trains = client
+    ///     Client::new()
     ///         .trains()
     ///         .await?
     ///         .0
@@ -100,8 +99,6 @@ impl Client {
     ///                 .filter(|train| train.route_name == "Keystone")
     ///         })
     ///         .map(|train| {
-    ///             // The stations for each train are listed in order in which they will be visited.
-    ///             // Find the first station which has the Enroute status which indicates it is the next stop on the route.
     ///             let enroute_information = train
     ///                 .stations
     ///                 .iter()
@@ -110,17 +107,9 @@ impl Client {
     ///
     ///             (train, enroute_information)
     ///         })
-    ///         .collect::<Vec<_>>();
-    ///
-    ///     keystone_trains
-    ///         .iter()
     ///         .for_each(|(train, enroute_information)| {
-    ///             // Ensure that we did find a enroute station for this train
     ///             if let Some((station_name, arrival)) = enroute_information {
     ///                 let time_till_arrival = if let Some(arrival) = arrival {
-    ///                     // Figure out the amount of time between when the train is suppose to arrive
-    ///                     // vs what the current time is. Ensure that we account for timezone by converting
-    ///                     // both to Utc.
     ///                     let local_now = Local::now().with_timezone(&Utc);
     ///                     let arrival_utc = arrival.with_timezone(&Utc);
     ///
@@ -143,9 +132,12 @@ impl Client {
     ///                 );
     ///             }
     ///         });
+    ///
     ///     Ok(())
     /// }
     /// ```
+    ///
+    /// [`TrainResponse`]: responses::TrainResponse
     pub async fn trains(&self) -> Result<responses::TrainResponse> {
         let url = format!("{}/trains", self.base_url);
 
@@ -164,7 +156,8 @@ impl Client {
     /// This function calls into the `/trains/{:train_id}` endpoint.
     ///
     /// This function will list the specified train being tracked by the Amtrak
-    /// API.
+    /// API. Check the [`TrainResponse`] struct for the schema and data that
+    /// this endpoint returns.
     ///
     /// # Arguments
     ///
@@ -228,6 +221,7 @@ impl Client {
     /// }
     /// ```
     ///
+    /// [`TrainResponse`]: responses::TrainResponse
     /// [`train_id`]: responses::Train::train_id
     /// [`train_num`]: responses::Train::train_num
     pub async fn train(&self, train_identifier: &str) -> Result<responses::TrainResponse> {
@@ -247,7 +241,9 @@ impl Client {
     ///
     /// This function calls into the `/stations` endpoint.
     ///
-    /// This function will list all the stations in the Amtrak network.
+    /// This function will list all the stations in the Amtrak network. Check
+    /// the [`StationResponse`] struct for the schema and data that this
+    /// endpoint returns.
     ///
     /// # Example
     ///
@@ -269,6 +265,8 @@ impl Client {
     ///     Ok(())
     /// }
     /// ```
+    ///
+    /// [`StationResponse`]: responses::StationResponse
     pub async fn stations(&self) -> Result<responses::StationResponse> {
         let url = format!("{}/stations", self.base_url);
 
@@ -287,6 +285,8 @@ impl Client {
     /// This function calls into the `/stations/{:station_code}` endpoint.
     ///
     /// This function will query the station with the provided `station_code`.
+    /// Check the [`StationResponse`] struct for the schema and data that this
+    /// endpoint returns.
     ///
     /// # Arguments
     ///
@@ -318,6 +318,7 @@ impl Client {
     /// }
     /// ```
     ///
+    /// [`StationResponse`]: responses::StationResponse
     /// [`code`]: responses::TrainStation::code
     pub async fn station(&self, station_code: &str) -> Result<responses::StationResponse> {
         let url = format!("{}/stations/{}", self.base_url, station_code);

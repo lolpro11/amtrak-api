@@ -7,9 +7,7 @@ use chrono::{Local, Utc};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let client = Client::new();
-
-    let keystone_trains = client
+    Client::new()
         .trains()
         .await?
         .0
@@ -28,10 +26,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             (train, enroute_information)
         })
-        .collect::<Vec<_>>();
-
-    keystone_trains
-        .iter()
         .for_each(|(train, enroute_information)| {
             if let Some((station_name, arrival)) = enroute_information {
                 let time_till_arrival = if let Some(arrival) = arrival {
